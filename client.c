@@ -1,15 +1,21 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <string.h>
+#include "client.h"
 
-#define BUFLEN 512 // buffer size
-#define OK "OK"
-#define ERROR "ERROR"
+int get_ip_port(char *arg, char ip[], int *port) {
+	int status = -1;
+	char temp[IPLEN];
+	char *t;
+	
+	t = strchr(arg, ':');
+	if(t == NULL)
+		return status;
+	
+	strcpy(temp, &arg[t - arg + 1]);
+	*port = atoi(temp);
+	arg[t - arg] = '\0';
+	strcpy(ip, arg);
+	
+	return 0;
+}
 
 void process_commands(int cliFd) {
 	// process server commands and execute them
@@ -96,6 +102,14 @@ int main(int argc, char *argv[]) {
 	struct sockaddr_in serverAddr, client;
 	int cliFd, connectionFd, length;
 	char buffer[BUFLEN];
+	char ip[IPLEN];
+	int port;
+
+	
+	if((argc != 2) || (get_ip_port(argv[1], ip, &port) == -1)) {
+		fprintf(stderr, "Usage: ./server ipto_listenon:port\n\n");
+		exit(0);
+	}
 	
 	cliFd = socket(AF_INET, SOCK_STREAM, 0);
 	if(cliFd == -1) {

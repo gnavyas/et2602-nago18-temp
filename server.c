@@ -1,18 +1,21 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
+#include "server.h"
 
-#define PROTOCOLS "TEXT TCP 1.0" // constant msg
-#define MAXADDRANGE 100000 // Can change this to (maxsize of int / 2)
-#define BUFLEN 512 // buffer size
-#define OK "OK"
-#define ERROR "ERROR"
-#define IPLEN 16
+int get_ip_port(char *arg, char ip[], int *port) {
+	int status = -1;
+	char temp[IPLEN];
+	char *t;
+	
+	t = strchr(arg, ':');
+	if(t == NULL)
+		return status;
+	
+	strcpy(temp, &arg[t - arg + 1]);
+	*port = atoi(temp);
+	arg[t - arg] = '\0';
+	strcpy(ip, arg);
+	
+	return 0;
+}
 
 void send_commands(int connectionFd) {
 	// get random commands and send it to client to execute
@@ -86,8 +89,14 @@ int main(int argc, char *argv[]) {
 	int servFd, connectionFd, length;
 	char buffer[BUFLEN];
 	char ip[IPLEN];
-		
+	int port;
+
 	
+	if((argc != 2) || (get_ip_port(argv[1], ip, &port) == -1)) {
+		fprintf(stderr, "Usage: ./server ipto_listenon:port\n\n");
+		exit(0);
+	}
+
 	servFd = socket(AF_INET, SOCK_STREAM, 0);
 	if(servFd == -1) {
 		fprintf(stderr, "%% Socket couldn't be created. Exiting\n");
@@ -95,13 +104,14 @@ int main(int argc, char *argv[]) {
 	
 	serverAddr.sin_family = AF_INET; 
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); 
-	serverAddr.sin_port = htons(33333); // change port later to be cmd 
+	serverAddr.sin_port = htons(port); 
 
 	if(bind(servFd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))) {
 		fprintf(stderr, "%% Couldn't bind a name to socket. Exiting\n"); 
 		exit(0); 
 	}
 	
+	fprintf(stdout, "%% Server started successfully on %s:%d\n", ip, port);
 	if ((listen(servFd, 1)) != 0) { 
 		fprintf(stderr, "%% Listen call failed. Exiting\n"); 
 		exit(0); 
