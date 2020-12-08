@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include <string.h>
 #include <time.h>
 

@@ -1,18 +1,19 @@
 #include "client.h"
 
 int get_ip_port(char *arg, char ip[], int *port) {
+	// arg has a.b.c.d:pppp, so put a.b.c.d in ip and pppp in port
 	int status = -1;
 	char temp[IPLEN];
 	char *t;
 	
 	t = strchr(arg, ':');
 	if(t == NULL)
-		return status;
+		return status; // invalid input
 	
 	strcpy(temp, &arg[t - arg + 1]);
-	*port = atoi(temp);
+	*port = atoi(temp); // get port
 	arg[t - arg] = '\0';
-	strcpy(ip, arg);
+	strcpy(ip, arg); // get ip
 	
 	return 0;
 }
@@ -32,56 +33,56 @@ void process_commands(int cliFd) {
 	recv(cliFd, buffer, BUFLEN, 0);
 	fprintf(stdout, "** Server sent following command -- %s", buffer);
 	
-	if(strstr(buffer, "fadd") != NULL) {
+	if(strstr(buffer, "fadd") != NULL) { // fadd val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);
 		resultDouble = d1 + d2;
 		sprintf(buffer, "%8.8g", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "fdiv") != NULL) {
+	else if(strstr(buffer, "fdiv") != NULL) { // fdiv val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);	
 		resultDouble = d1 / d2;
 		sprintf(buffer, "%8.8g", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "fmul") != NULL) {
+	else if(strstr(buffer, "fmul") != NULL) { // fmul val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);
 		resultDouble = d1 * d2;
 		sprintf(buffer, "%8.8g", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "fsub") != NULL) {
+	else if(strstr(buffer, "fsub") != NULL) { // fsub val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);	
 		resultDouble = d1 - d2;
 		sprintf(buffer, "%8.8g", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "add") != NULL) {
+	else if(strstr(buffer, "add") != NULL) { // add val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);
 		resultInt = i1 + i2;
 		sprintf(buffer, "%d", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "div") != NULL) {
+	else if(strstr(buffer, "div") != NULL) { // div val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);	
 		resultInt = i1 / i2;
 		sprintf(buffer, "%d", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "mul") != NULL) {
+	else if(strstr(buffer, "mul") != NULL) { // mul val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);	
 		resultInt = i1 * i2;
 		sprintf(buffer, "%d", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
-	else if(strstr(buffer, "sub") != NULL) {
+	else if(strstr(buffer, "sub") != NULL) { // sub val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);
 		resultInt = i1 - i2;
 		sprintf(buffer, "%d", resultInt);
@@ -106,25 +107,29 @@ int main(int argc, char *argv[]) {
 	int port;
 
 	
+	// check if valid cmd args
 	if((argc != 2) || (get_ip_port(argv[1], ip, &port) == -1)) {
 		fprintf(stderr, "Usage: ./server ipto_listenon:port\n\n");
 		exit(0);
 	}
 	
+	// create sockets
 	cliFd = socket(AF_INET, SOCK_STREAM, 0);
 	if(cliFd == -1) {
 		fprintf(stderr, "%% Socket couldn't be created. Exiting\n");
 	}
 	
+	// embed ip, port, proto details
 	serverAddr.sin_family = AF_INET; 
-	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-	serverAddr.sin_port = htons(33333); // change port later to be cmd 
+	serverAddr.sin_addr.s_addr = inet_addr(ip); 
+	serverAddr.sin_port = htons(port); // change port later to be cmd 
 
+	// connect to the server
 	if(connect(cliFd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))) {
 		fprintf(stderr, "%% Couldn't connect to server. Exiting\n"); 
 		exit(0); 
 	}
-	fprintf(stdout, "%% Connected to the server\n");
+	fprintf(stdout, "%% Connected to the server %s:%d\n", ip, port);
 	// communicate
 	recv(cliFd, buffer, BUFLEN, 0);
 	fprintf(stdout, "** SERVER sent %s\n", buffer);
