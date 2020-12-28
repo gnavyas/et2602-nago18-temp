@@ -8,13 +8,16 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
+#include <math.h>
+
 
 // Defining constants
-#define PROTOCOLS "TEXT TCP 1.0" // constant msg
+#define PROTOCOLS "TEXT TCP 1.0\n" // constant msg
 #define MAXADDRANGE 100000 // Can change this to (maxsize of int / 2)
 #define BUFLEN 512 // buffer size
-#define OK "OK"
-#define ERROR "ERROR"
+#define OK "OK\n"
+#define ERROR "ERROR\n"
 #define IPLEN 16
 
 // Function declarations

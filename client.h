@@ -7,11 +7,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <strings.h>
+#include <stdlib.h>
+#include <math.h>
 
 // Defining constants
 #define BUFLEN 512 // buffer size
-#define OK "OK"
-#define ERROR "ERROR"
+#define OK "OK\n"
+#define ERROR "ERROR\n"
 #define IPLEN 16
 
 // Function declarations

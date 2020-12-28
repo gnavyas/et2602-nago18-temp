@@ -22,6 +22,7 @@ void process_commands(int cliFd) {
 	// process server commands and execute them
 	char buffer[BUFLEN];
 	char command[5];
+	char *ptr;
 	double d1;
 	double d2;
 	double resultDouble;
@@ -31,72 +32,80 @@ void process_commands(int cliFd) {
 	int i2;
 	
 	recv(cliFd, buffer, BUFLEN, 0);
-	fprintf(stdout, "** Server sent following command -- %s", buffer);
+	ptr = strchr(buffer, '\n');
+	buffer[ptr - buffer] = '\0';
+	fprintf(stdout, "** Server sent following command -- %s\n", buffer);
 	
 	if(strstr(buffer, "fadd") != NULL) { // fadd val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);
 		resultDouble = d1 + d2;
-		sprintf(buffer, "%8.8g", resultDouble);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%8.8g\n", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "fdiv") != NULL) { // fdiv val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);	
 		resultDouble = d1 / d2;
-		sprintf(buffer, "%8.8g", resultDouble);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%8.8g\n", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "fmul") != NULL) { // fmul val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);
 		resultDouble = d1 * d2;
-		sprintf(buffer, "%8.8g", resultDouble);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%8.8g\n", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "fsub") != NULL) { // fsub val1 val2 command
 		sscanf(buffer, "%s %lf %lf\n", command, &d1, &d2);	
 		resultDouble = d1 - d2;
-		sprintf(buffer, "%8.8g", resultDouble);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%8.8g\n", resultDouble);
 		fprintf(stdout, "** Sending answer %8.8g to server\n", resultDouble);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "add") != NULL) { // add val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);
 		resultInt = i1 + i2;
-		sprintf(buffer, "%d", resultInt);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%d\n", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "div") != NULL) { // div val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);	
 		resultInt = i1 / i2;
-		sprintf(buffer, "%d", resultInt);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%d\n", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "mul") != NULL) { // mul val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);	
 		resultInt = i1 * i2;
-		sprintf(buffer, "%d", resultInt);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%d\n", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else if(strstr(buffer, "sub") != NULL) { // sub val1 val2 command
 		sscanf(buffer, "%s %d %d\n", command, &i1, &i2);
 		resultInt = i1 - i2;
-		sprintf(buffer, "%d", resultInt);
+		bzero(buffer, BUFLEN);
+		sprintf(buffer, "%d\n", resultInt);
 		fprintf(stdout, "** Sending answer %d to server\n", resultInt);
 		send(cliFd, buffer, BUFLEN, 0);
 	}
 	else { // invalid operation requested
-		send(cliFd, "0", 2, 0);
+		send(cliFd, "0\n", 3, 0);
 	}
+	bzero(buffer, BUFLEN);
 	recv(cliFd, buffer, sizeof(buffer), 0);
-	if(strcmp(buffer, OK) == 0)
-		fprintf(stdout, "%% Server sent %s\n", OK);
-	else
-		fprintf(stdout, "%% Server sent %s\n", ERROR);
+	fprintf(stdout, "%% Server sent %s\n", buffer);
 }
 
 int main(int argc, char *argv[]) {

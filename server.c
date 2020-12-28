@@ -27,7 +27,7 @@ void send_commands(int connectionFd) {
 	double d1;
 	double d2;
 	double resultDouble;
-	double p = 0.00001; // precision checking
+	double p = 0.0001; // precision checking
 	int randomChoice;
 	int resultInt;
 	int i1;
@@ -72,13 +72,13 @@ void send_commands(int connectionFd) {
 		fprintf(stdout, "%% Client returned the value %s\n", buffer);
 		sscanf(buffer, "%lf", &resultDouble);
 		switch(randomChoice) { // check clients answer & send OK if correct else ERROR
-			case 0: ((resultDouble - p < d1 + d2) && (resultDouble + p > d1 + d2)) ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
+			case 0: fabs(d1 - d2) < p ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
 				break;
-			case 1: ((resultDouble - p < d1 / d2) && (resultDouble + p > d1 / d2)) ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
+			case 1: fabs(d1 - d2) < p ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
 				break;
-			case 2: ((resultDouble - p < d1 * d2) && (resultDouble + p > d1 * d2)) ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
+			case 2: fabs(d1 - d2) < p ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
 				break;
-			case 3: ((resultDouble - p < d1 - d2) && (resultDouble + p > d1 - d2)) ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
+			case 3: fabs(d1 - d2) < p ? send(connectionFd, OK, sizeof(OK), 0) : send(connectionFd, ERROR, sizeof(ERROR), 0);
 				break;
 		}
 	}
